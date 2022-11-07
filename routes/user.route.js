@@ -8,4 +8,6 @@ router.post('/upload',userController.upload)
 router.get('/dashboard',userController.dashboard)
 router.post('/post',userController.createPost)
 router.post('/profilepix',userController.profilePix)
+router.put('/profile/:id',userController.userProfile)
+router.get('/fetchdetails/:id',userController.fetchDetails)
 module.exports = router

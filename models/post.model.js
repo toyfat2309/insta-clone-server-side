@@ -2,17 +2,18 @@
 
 const postSchema = mongoose.Schema ({
     username:String,
-    profilepix:String,
+    profilepix : '',
     post : [{
         picture:'',
         caption:'',
-        time:''
+        date : '',
+        Comment:[],
+        likes : [],
+        dislike : []
     }],
-    Comment:[],
     followers:[],
     following:[],
-     likes : [],
-     dislike : []
+
 })
 
 postModel = mongoose.model('post_tb', postSchema)

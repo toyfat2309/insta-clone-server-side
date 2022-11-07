@@ -86,7 +86,7 @@ const logIn = (request,response) => {
             console.log(err)
             response.send({status:false,message:'unauthorized'})
         }else{
-            userModel.findOne({id:result.userId},(err,userDetails)=>{
+            postModel.findOne({id:result.userId},(err,userDetails)=>{
                 if(err){
                     response.status(501).send({status:false,message:'internal server error'})
                 }else{
@@ -141,22 +141,29 @@ const createPost = (request,response) =>{
 }
 
 const profilePix = (request,response) => {
-    const userId = request.body.userName
-    const pix = request.body.profileImage
-    const id1 = request.body.id
-    cloudinary.v2.uploader.upload(pix,{folder:'profilepix',public_id:`/${id1}`},(err,result)=>{
+    //const userId = request.body.userName
+    const pix = request.body.profilePhoto
+    const user = request.body.currentUser
+    cloudinary.v2.uploader.upload(pix,{folder:'profilepix',public_id:`/${user}`},(err,result)=>{
         if(err){
             console.log(err)
             response.send({message:'upload failed'})
         }else{
             console.log(result);
-            userModel.updateMany({_id:userId},{$set:{'profilepix':result.secure_url}}, function(err,res){
+            userModel.updateMany({username:user},{$set:{'profilepix':result.secure_url}}, function(err,res){
                 if (err) {
                     console.log(err);
                     response.send({message:'there is an err'})
                 }else{
-                    response.send({message:'saved sucessfully', image:result.secure_url})
-                    console.log(res);
+                    postModel.updateMany({username:user},{$set:{'profilepix':result.secure_url}}, function(err,res){
+                        if (err) {
+                            console.log(err);
+                            response.send({message:'there is an err'})
+                        }else{
+                            response.send({message:'saved sucessfully', image:result.secure_url})
+                            console.log(res);
+                        }
+                    })
                 }
             })
             // console.log(result.secure_url)
@@ -165,8 +172,27 @@ const profilePix = (request,response) => {
     });
 }
 
-const comment = () =>{
-
+const userProfile = (request,response) =>{
+    const user = request.params.id
+    postModel.findOne({username:user},(err,userDetails)=>{
+        if(err){
+            response.status(501).send({status:false,message:'internal server error'})
+            
+        }else{
+            response.send({status:true,message:'still valid',userDetails})
+        }
+    })
+}
+const fetchDetails = (request,response) =>{
+    const user = request.params.id
+    userModel.findOne({username:user},(err,userDetails)=>{
+        if(err){
+            response.status(501).send({status:false,message:'internal server error'})
+            
+        }else{
+            response.send({status:true,message:'still valid',userDetails})
+        }
+    })
 }
 
-module.exports = {SignUp,logIn,upload,dashboard,createPost,profilePix,comment}
+module.exports = {SignUp,logIn,upload,dashboard,createPost,profilePix,userProfile,fetchDetails}

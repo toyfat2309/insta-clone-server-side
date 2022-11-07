@@ -10,18 +10,18 @@ cloudinary.config({
   });
 
   const createPost = (request,response) => {
-    const file =request.body.myFile // image to save to cloudinary
-    const user = request.body.id // id in cloudinary
-    const caption = request.body.post // caption
+    const file =request.body.postImage // image to save to cloudinary
+    const user = request.body.id // id in mongoDB
+    const caption = request.body.postCaption // caption
     const usernamee = request.body.username //username
-    const profilephoto= request.body.profilePhoto // profilepix
+    const isoDate= request.body.isoDate // profilepix
     cloudinary.v2.uploader.upload(file,(err,result)=>{
         if(err){
             console.log(err)
             response.send({message:'upload failed'})
         }else{
             const pix = result.secure_url
-            postModel.updateMany({_id:user},{$push:{posts:{'post':caption,'picture':pix,'username':usernamee,'profilepix':profilephoto}}},function(err,result){
+            postModel.updateMany({_id:user},{$push:{post:{'caption':caption,'picture':pix,'date':isoDate}}},function(err,result){
                 if (err) {
                     console.log(err);
                     response.send({message:'could not push'})
