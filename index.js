@@ -21,8 +21,10 @@ app.use(cors())
 const PORT = process.env.PORT
 const userRouter = require('./routes/user.route')
 const postRouter = require('./routes/post.route')
+const commentRouter = require('./routes/comment.route')
 app.use('/users',userRouter)
 app.use('/posts',postRouter)
+app.use('/comments',commentRouter)
 
 app.listen(PORT,()=>{
     console.log(`listenting at port ${PORT}`);

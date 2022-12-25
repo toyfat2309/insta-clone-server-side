@@ -1,20 +1,18 @@
- const mongoose = require('mongoose')
-
-const postSchema = mongoose.Schema ({
-    username:String,
-    profilepix : '',
-    post : [{
-        picture:'',
-        caption:'',
-        date : '',
-        Comment:[],
-        likes : [],
-        dislike : []
-    }],
-    followers:[],
-    following:[],
-
-})
+const mongoose = require('mongoose')
+const userModel = require('../models/user.model');
+const postSchema = mongoose.Schema({
+    uniqueId: {
+        type:mongoose.Types.ObjectId,
+        ref : 'insta_table'
+    },
+    picture: '',
+    caption: '',
+    date: '',
+    Comment: [],
+    likes: [
+    ],
+    objectFit:''
+},{timestamps: true})
 
 postModel = mongoose.model('post_tb', postSchema)
 module.exports = postModel

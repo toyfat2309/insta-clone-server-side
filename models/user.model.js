@@ -1,27 +1,19 @@
 const bcrypt = require('bcryptjs')
 const mongoose = require('mongoose')
-const postSchema = mongoose.Schema({
-    post:String,
-    picture:String,
-    username:String,
-    profilepix:String
-})
-const followerSchema = mongoose.Schema({
-    username: String,
-})
-const followingSchema = mongoose.Schema({
-    username: String,
-})
+
 const userSchema = mongoose.Schema({
-    id:String,
+    id:{
+        type : String,
+        lowercase : true
+    },
     fullname:String,
     username:String,
     password:String,
     profilepix:String,
-    posts:[postSchema],
-    followers:[followerSchema],
-    following:[followingSchema]
-})
+    bio:String,
+    followers:[],
+    following:[],
+},{timestamps: true})
 
 let saltRound = 5
 userSchema.pre('save',function(next){
@@ -36,16 +28,16 @@ userSchema.pre('save',function(next){
     })
 })
 
-userSchema.methods.validatePassword = function(password,callback){
-    bcrypt.compare(password,this.password,(err,same)=>{
-        if (!err) {
-            callback(err,same)
-        }
-        else{
-            next()
-        }
-    })
-}
+// userSchema.methods.validatePassword = function(password,callback){
+//     bcrypt.compare(password,this.password,(err,same)=>{
+//         if (!err) {
+//             callback(err,same)
+//         }
+//         else{
+//             next()
+//         }
+//     })
+// }
 
 userModel = mongoose.model('insta_table',userSchema)
 module.exports = userModel

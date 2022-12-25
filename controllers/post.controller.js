@@ -1,7 +1,8 @@
 const postModel = require('../models/post.model')
-const userModel = require('../models/user.model');
 const cloudinary = require('cloudinary')
+const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
+const { request } = require('express')
 const SECRET = process.env.JWT_SECRET
 cloudinary.config({ 
     cloud_name: process.env.CLOUD_NAME, 
@@ -9,30 +10,140 @@ cloudinary.config({
     api_secret: process.env.API_SECRET 
   });
 
-  const createPost = (request,response) => {
-    const file =request.body.postImage // image to save to cloudinary
-    const user = request.body.id // id in mongoDB
-    const caption = request.body.postCaption // caption
-    const usernamee = request.body.username //username
-    const isoDate= request.body.isoDate // profilepix
+
+  const createPost =  (request,response) => {
+    const file =request.body.postImage 
     cloudinary.v2.uploader.upload(file,(err,result)=>{
         if(err){
             console.log(err)
             response.send({message:'upload failed'})
         }else{
-            const pix = result.secure_url
-            postModel.updateMany({_id:user},{$push:{post:{'caption':caption,'picture':pix,'date':isoDate}}},function(err,result){
-                if (err) {
-                    console.log(err);
-                    response.send({message:'could not push'})
-                }
-                else{
-                    console.log(result);
-                    response.send({message:'pushed successfully',userDetails:result})
-                }
-            })
-        }
+            async function userPost () {
+                const post = await new postModel({
+                    username : request.body.userName,
+                    uniqueId :request.body.id,
+                    profilepix: request.body.profilePix,
+                    picture: result.secure_url,
+                    caption: request.body.postCaption,
+                    date: request.body.isoDate,
+                    objectFit: request.body.objectFit,
+                    Comment: [],
+                    likes: [],
+                    dislike: []
+                })
+                await post.save()
+                response.send({status :true, message:'upload successful',userDetails:result})
+            }
+            userPost ()
+        //     postModel.updateMany({_id:user},{$push:{post:{'caption':caption,'picture':pix,'date':isoDate}}},function(err,result){
+        //         if (err) {
+        //             console.log(err);
+        //             response.send({message:'could not push'})
+        //         }
+        //         else{
+        //             console.log(result);
+        //             response.send({message:'upload successful',userDetails:result})
+        //         }
+        //     })
+         }
     });
   }
 
-  module.exports = {createPost}
+  const like = async (request,response) => {
+    let postId = request.body.postId
+    let userId = request.body.id
+    try {
+        const findLike = await postModel.find({'likes.like':userId})
+        if (findLike.length >= 1) {
+            const postTb = await postModel.find({_id:postId}).populate({path:'uniqueId',model:'insta_table',select:'profilepix username'})
+            if (!postTb) {
+                response.send({ message: 'an error occured' })
+            }else{
+                const currentPost = postTb[0];
+                response.send({ message: 'liked succesfully',status:true,currentPost })
+            }
+        }else{
+            const updateLikes = await postModel.findOneAndUpdate({ _id : postId }, { $push: { likes: { 'like':mongoose.Types.ObjectId(userId) } } })
+            if (!updateLikes) {
+                response.send({ message: 'error occured', status: 500 })
+            } else {
+                const postTb = await postModel.find({_id:postId}).populate({path:'uniqueId',model:'insta_table',select:'profilepix username'})
+                if (!postTb) {
+                    response.send({ message: 'an error occured' })
+                }else{
+                    const currentPost = postTb[0];
+                    response.send({ message: 'liked succesfully',status:true,currentPost })
+                }
+            }
+        }
+
+    } catch (error) {
+        console.log(error);
+    }
+  }
+ 
+  const unLike = async (request, response) => {
+
+    let postId = request.body.postId
+    let userId = request.body.id
+    try {
+        const updateLikes = await postModel.findOneAndUpdate({ _id: postId }, { $pull: { likes: { 'like':mongoose.Types.ObjectId(userId) } } })
+        if (!updateLikes) {
+            response.send({ message: 'error occured', status: 500 })
+        } else {
+            const postTb = await postModel.find({_id:postId}).populate({path:'uniqueId',model:'insta_table',select:'profilepix username'})
+            if (!postTb) {
+                response.send({ message: 'an error occured' })
+            }else{
+                const currentPost = postTb[0];
+                response.send({ message: 'liked succesfully',status:true,currentPost })
+            }
+        }
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
+const comment = async (request,response) => {
+    const userComment = request.body.userCommentInput
+    const userId = request.body.id
+    const postId = request.body.postId
+    
+    try {
+        const user = await postModel.findOneAndUpdate({_id:postId},{$push : {"post.$.Comment":{$each:[{userId,userComment}],$position:0} }})
+        if (!user) {
+            response.status(500).send({message : 'an error occur'})
+            console.log(user);
+        }else{
+            response.send({message : 'comment post successfully',status:true})
+            console.log(user);
+        }
+        
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const explore = (request,response) => {
+    const token = request.headers.authorization.split(' ')[1]
+    jwt.verify(token,SECRET,async(err,result)=>{
+        if (err) {
+            console.log(err);
+            response.status(404).send({message : 'unauthorized'})
+        }else{
+            const userDDetails = await userModel.findOne({_id:result.user})
+            if (!userDDetails) {
+                response.status(501).send({ status: false, message: 'unauthorize' })
+            }else{
+                const allPost = await postModel.find({})
+                const {password,fullname,id, ...others} = userDDetails._doc
+                response.send({message : 'comment post successfully',status:true,allPost,others})
+            }
+            
+        }
+    })
+}
+
+  module.exports = {createPost, like, unLike, comment,explore}
