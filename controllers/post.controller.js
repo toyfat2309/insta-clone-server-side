@@ -3,6 +3,7 @@ const cloudinary = require('cloudinary')
 const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
 const { request } = require('express')
+const commentModel = require('../models/comment.model')
 const SECRET = process.env.JWT_SECRET
 cloudinary.config({ 
     cloud_name: process.env.CLOUD_NAME, 
@@ -146,4 +147,25 @@ const explore = (request,response) => {
     })
 }
 
-  module.exports = {createPost, like, unLike, comment,explore}
+const deletePost = async(request, response) => {
+
+    try {
+        const deletePostFromPostTb = await postModel.deleteOne({_id:request.body.postToDeleteId})
+        if (!deletePostFromPostTb) {
+            response.status(501).json({message : 'internal server error'})
+        }else{
+            const deletePostFromCommentTb = await commentModel.deleteMany({postId:request.body.postToDeleteId})
+            if (!deletePostFromCommentTb) {
+                console.log('no comment found');
+                response.status(200).json({message : 'no comment for this post'})
+            }else{
+                response.status(200).send({message : 'deleted successfully'})
+            }
+        }
+    } catch (error) {
+        
+    }
+    
+}
+
+  module.exports = {createPost, like, unLike, comment,explore, deletePost}

@@ -7,5 +7,6 @@ router1.post('/like',postController.like)
 router1.post('/unlike',postController.unLike)
 router1.post('/comment',postController.comment)
 router1.get('/explore',postController.explore)
+router1.post('/deletepost',postController.deletePost)
 
 module.exports = router1
