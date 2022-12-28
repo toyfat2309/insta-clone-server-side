@@ -554,4 +554,4 @@ const unFollow = async (request, response) => {
 }
 
 
-module.exports = { SignUp, logIn, upload, dashboard, createPost, profilePix, userProfile, fetchDetails, updateUserDetails, editProfile, follow, unFollow, }
+module.exports = { SignUp, logIn, upload, dashboard, createPost, profilePix, userProfile, fetchDetails, updateUserDetails, editProfile, follow, unFollow }

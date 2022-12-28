@@ -168,4 +168,34 @@ const deletePost = async(request, response) => {
     
 }
 
-  module.exports = {createPost, like, unLike, comment,explore, deletePost}
+const savePost = async(request,response) => {
+    
+    const user = await userModel.findOneAndUpdate({_id:request.body.id},{ $push :{'savedPost':request.body.postId}})
+    if (!user) {
+        response.status(501).json({message : 'internal server error'})
+    }else{
+        const postTb = await postModel.findOneAndUpdate({_id : request.body.postId},{ $push : {'savedPost' : request.body.id}})
+        if (!postTb) {
+            
+        }else{
+            response.status(200).json({message : 'post save successfully'})
+        }
+    }
+}
+
+const reomoveSavedPost = async(request,response) => {
+    
+    const user = await userModel.findOneAndUpdate({_id:request.body.id},{ $pull :{'savedPost':request.body.postId}})
+    if (!user) {
+        response.status(501).json({message : 'internal server error'})
+    }else{
+        const postTb = await postModel.findOneAndUpdate({_id : request.body.postId},{ $pull : {'savedPost' : request.body.id}})
+        if (!postTb) {
+            
+        }else{
+            response.status(200).json({message : 'post save successfully'})
+        }
+    }
+}
+
+  module.exports = {createPost, like, unLike, comment,explore, deletePost , savePost, reomoveSavedPost}

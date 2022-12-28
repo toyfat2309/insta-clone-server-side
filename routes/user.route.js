@@ -14,4 +14,5 @@ router.post('/unfollow',userController.unFollow)
 router.post('/profilepix',userController.profilePix)
 router.get('/profile/:id',userController.userProfile)
 router.get('/fetchdetails/:id',userController.fetchDetails)
+
 module.exports = router

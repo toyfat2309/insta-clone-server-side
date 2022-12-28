@@ -13,6 +13,10 @@ const userSchema = mongoose.Schema({
     bio:String,
     followers:[],
     following:[],
+    savedPost : [{
+        type:mongoose.Types.ObjectId,
+        ref : 'insta_table'
+    }]
 },{timestamps: true})
 
 let saltRound = 5
