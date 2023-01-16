@@ -5,17 +5,25 @@ const postSchema = mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: 'insta_table'
     },
-    picture: '',
+    postImage: '',
     caption: '',
     date: '',
-    Comment: [],
+    Comment: [{
+        type: mongoose.Types.ObjectId,
+        ref: 'insta_table'
+    }],
     likes: [
         {
             type: mongoose.Types.ObjectId,
             ref: 'insta_table'
         }
     ],
-    savedPost: [],
+    savedPost: [
+        {
+            type: mongoose.Types.ObjectId,
+            ref: 'insta_table'
+        }
+    ],
     objectFit: ''
 }, { timestamps: true })
 

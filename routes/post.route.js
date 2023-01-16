@@ -1,14 +1,15 @@
 const express = require('express');
-const router1 = express.Router()
-const postController = require('../controllers/post.controller')
+const router = express.Router()
+const { createPost, like, unLike, comment, explore, deletePost, savePost, reomoveSavedPost} = require('../controllers/post.controller')
+const { protect } = require('../authMiddleware/auth')
 
-router1.post('/post',postController.createPost)
-router1.post('/like',postController.like)
-router1.post('/unlike',postController.unLike)
-router1.post('/comment',postController.comment)
-router1.get('/explore',postController.explore)
-router1.post('/deletepost',postController.deletePost)
-router1.post('/savepost',postController.savePost)
-router1.post('/removesavedpost',postController.reomoveSavedPost)
+router.route('/post').post(protect,createPost)
+router.route('/like/:postId').patch(protect,like)
+router.route('/unlike/:postId').patch(protect,unLike)
+router.route('/comment').post(protect,comment)
+router.route('/explore').get(protect,explore)
+router.route('/deletepost').post(protect,deletePost)
+router.route('/savepost/:postId').patch(protect,savePost)
+router.route('/removesavedpost/:postId').patch(protect,reomoveSavedPost)
 
-module.exports = router1
+module.exports = router

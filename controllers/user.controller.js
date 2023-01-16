@@ -64,17 +64,11 @@ const logIn = async (request, response) => {
 }
 
 const dashboard =  (request, response) => {
-    const token = request.headers.authorization.split(' ')[1]
-    jwt.verify(token, SECRET, (err, result) => {
-        if (err) {
-            console.log(err)
-            response.send({ status: false, message: 'unauthorized' })
-        } else {
-                
+ 
                 try {
                     async function tee () {
 
-                        const currentUser= await userModel.findOne({ _id: result.user })
+                        const currentUser= await userModel.findOne({ _id: request.user })
                         if (!currentUser) {
                             response.status(501).send({ status: false, message: 'unauthorize' })
                         }else{ 
@@ -103,12 +97,11 @@ const dashboard =  (request, response) => {
                                     const allPost = await userPost.concat(...ppp).sort((a,b)=>{
                                         return b.createdAt - a.createdAt
                                      })
-                                     
-                                    response.send({ status: true, message: 'still valid',userDetails,allPost,allUserFilter})
+                                    response.status(200).send({ status: true, message: 'still valid',userDetails,allPost,allUserFilter})
                                 }
                                  
                              
-                        } 
+                        }
                             
                     }
                          
@@ -118,52 +111,7 @@ const dashboard =  (request, response) => {
                     console.log(error);
                 }
 
-                // userModel.findOne({ _id: result.user }, (err, userDetails) => {
-                //     if (err) {
-                //         response.status(501).send({ status: false, message: 'internal server error' })
-                //     } else {
-                //         response.send({ status: true, message: 'still valid',userDetails })
-                //     }
-                // })
-
-        }
-        //         async function tee () {
-        //         try {
-                    
-        //             const userPost = await  userModel.findOne({ _id: result.user })
-        //             if (!userPost) {
-        //                 response.status(501).send({ status: false, message: 'unauthorize' })
-        //             }else{
-        //                 const {fullname,password,id, ...activeUserPost} = userPost._doc
-        //                 postDetails.push(activeUserPost)
-        //                 const postDetails = await Promise.all(
-        //                      userPost.followers.map((friendId)=>{
-        //                    return userModel.findOne({_id:friendId.id})
-        //                     ,(err,result)=>{
-        //                             if (err) {
-        //                                 response.send({ message : 'cant find post'})
-        //                             }else{
-        //                                 const a = result
-        //                                 const {fullname,password, ...postDetails} = a._doc
-        //                                 response.send({ status: true, message: 'still valid',postDetails})
-                                        
-        //                             }
-        //                         })
-                            
-        //                     })
-    
-        //                  )
-        //                  response.send({ status: true, message: 'still valid',postDetails}) 
-        //                  console.log(postDetails);  
-        //             }                  
-        //         } catch (error) {
-        //             console.log(error);
-        //         }
-        //         }
-                
-        //         tee()
-        // }
-    })
+              
 
 }
 
@@ -227,26 +175,7 @@ const createPost = async (request, response) => {
         console.log(error);
     }
 
-    // userModel.updateMany({ _id: user }, { $unshift: { post: { 'caption': cap, 'picture': pix, 'date': usernamee, 'profilepix': profilephoto } } }, function (err, result) {
-    //     if (err) {
-    //         console.log(err);
-    //         response.send({ message: 'could not push' })
-    //     }
-    //     else {
-    //         console.log(result);
-    //         response.send({ message: 'pushed successfully', userDetails: result })
-    //     }
-    // })
-    // postModel.updateOne({username:user},{$push:{"post.$.picture":image,"post.$.caption":cap}},function(err,result){
-    //     if (err) {
-    //         console.log(err);
-    //         response.send({message:'could not push'})
-    //     }
-    //     else{
-    //         console.log(result);
-    //         response.send({message:'pushed successfully'})
-    //     }
-    // })
+    
 }
 
 const profilePix = (request, response) => {
@@ -275,8 +204,7 @@ const profilePix = (request, response) => {
                     })
                 }
             })
-            // console.log(result.secure_url)
-            // response.send({message:'upload successful',image:result.secure_url})
+           
         }
     });
 }
@@ -348,37 +276,7 @@ const userProfile = async (request, response) => {
     } catch (error) {
         console.log(error);
     }
-    // try {
-
-    //     const userDetails = await userModel.findOne({ username: user })
-    //     if (!userDetails) {
-    //         response.status(404).send({ status: false, message: 'user not found' })
-    //     } else {
-    //         const userPictures = await userModel.aggregate([
-    //             {$match : {_id:userDetails._id}},
-    //             {
-    //                 $lookup : {
-    //                     from :'post_tbs',
-    //                     localField :'_id',
-    //                     foreignField :'uniqueId',
-    //                     as : 'userPictures'
-    //                 }
-    //             },
-    //             {
-    //                 $project : {
-    //                     userPictures : 1,
-    //                     _id : 0
-    //                 }
-    //             }
-    //         ])
-    //         const profilePost = userPictures[0].userPictures
-    //          response.send({ status: true, message: 'still valid', userDetails,profilePost })
-    //     }
-
-        
-    // } catch (error) {
-    //     console.log(error);
-    // }
+    
 }
 
 
@@ -397,43 +295,7 @@ const fetchDetails = (request, response) => {
 }
 
 
-// const updateUserDetails = async(request,response) =>{
-//     const userId = request.body._id
-//     const oldUserName = request.body.oldUserName
-//     const name = request.body.name
-//     const username = request.body.userName
-//     const email = request.body.email
-//     const bio = request.body.bio
 
-//         userModel.findOne({username:username},(err,result)=>{
-//         if (err) {
-//             response.send({message:'Server Error, Please try again later',status:false})
-//         }
-//         else{
-//             if (result) {
-//                 response.send({message:'username exists, please choose a different userName',status:false})
-//             }else{
-//                  userModel.updateOne({_id:userId},{$set:{'fullname':name,'username':username,'id':email,'bio':bio}},function(err,updatedDetails){
-//                     if (err) {
-//                         console.log(userId);
-//                         response.send({message:'Server Error2, Please try again later',status:false})
-
-//                     }else{
-//                          postModel.updateOne({username:oldUserName},{$set:{'username':username}},(err,allDetails)=>{
-//                             if (err) {
-//                                 response.send({message:'Server Error3, Please try again later',status:false})
-//                                 console.log(err);
-//                             }else{
-//                                 response.send({message:'all details updated',status:true,updatedDetails})
-//                             }
-//                         })
-//                     }
-
-//                 })
-//             }
-//         }
-//     })
-// }
 const updateUserDetails = async (request, response) => {
     const userId = request.body.id
     const oldUserName = request.body.oldUserName

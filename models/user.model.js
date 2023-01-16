@@ -32,16 +32,7 @@ userSchema.pre('save',function(next){
     })
 })
 
-// userSchema.methods.validatePassword = function(password,callback){
-//     bcrypt.compare(password,this.password,(err,same)=>{
-//         if (!err) {
-//             callback(err,same)
-//         }
-//         else{
-//             next()
-//         }
-//     })
-// }
+
 
 userModel = mongoose.model('insta_table',userSchema)
 module.exports = userModel
